@@ -1,0 +1,183 @@
+/* ==========================================================================
+   Design Tokens — CSS Custom Properties
+   Fluent-based system. See tailwind.config.js for the Tailwind color wiring
+   that consumes these variables.
+   ========================================================================== */
+
+:root {
+  /* -------------------------------------------------------------------- */
+  /* Surfaces                                                              */
+  /* Rule: surface-1 (content well) is the extreme value in its theme's    */
+  /* natural direction (brightest in light, darkest in dark). surface-0    */
+  /* (app background) sits one step back toward the ramp. 2→5 ramp        */
+  /* monotonically toward "more elevated = lighter."                      */
+  /* -------------------------------------------------------------------- */
+  --surface-0: #F3F6FB; /* app background */
+  --surface-1: #FFFFFF; /* main content well */
+  --surface-2: #F8FAFC; /* cards */
+  --surface-3: #EEF2F8; /* elevated cards */
+  --surface-4: #E6EBF3; /* dropdowns / hover */
+  --surface-5: #DCE4EF; /* reserved / spare elevation step */
+
+  /* -------------------------------------------------------------------- */
+  /* Text                                                                  */
+  /* -------------------------------------------------------------------- */
+  --text-strong: #0F172A;
+  --text: #334155;
+  --text-muted: #64748B;
+  --text-subtle: #94A3B8;
+  --text-disabled: var(--text-subtle);
+
+  /* -------------------------------------------------------------------- */
+  /* Borders                                                               */
+  /* -------------------------------------------------------------------- */
+  --border-subtle: rgba(15, 23, 42, 0.06);
+  --border: rgba(15, 23, 42, 0.10);
+  --border-strong: rgba(15, 23, 42, 0.18);
+  --border-disabled: var(--border-subtle);
+
+  /* -------------------------------------------------------------------- */
+  /* Disabled surface (for disabled buttons/inputs backgrounds)           */
+  /* -------------------------------------------------------------------- */
+  --surface-disabled: var(--surface-3);
+
+  /* -------------------------------------------------------------------- */
+  /* Semantic color roles                                                  */
+  /* Pattern per color: subtle (bg tint) / muted (hover-on-bg) /          */
+  /* DEFAULT (solid, buttons/icons/links) / hover (on DEFAULT) /          */
+  /* text (colored text on subtle bg). Light pulls from the top of the    */
+  /* Tailwind ramp (600–700); dark pulls from the bottom (300–400) to     */
+  /* keep sufficient contrast against dark surfaces.                      */
+  /* -------------------------------------------------------------------- */
+
+  /* Primary — blue */
+  --primary-subtle: #EFF6FF;   /* blue-50 */
+  --primary-muted: #DBEAFE;    /* blue-100 */
+  --primary: #2563EB;          /* blue-600 */
+  --primary-hover: #1D4ED8;    /* blue-700 */
+  --primary-text: #1D4ED8;     /* blue-700 */
+
+  /* Secondary — teal */
+  --secondary-subtle: #F0FDFA; /* teal-50 */
+  --secondary-muted: #CCFBF1;  /* teal-100 */
+  --secondary: #0D9488;        /* teal-600 */
+  --secondary-hover: #0F766E;  /* teal-700 */
+  --secondary-text: #0F766E;   /* teal-700 */
+
+  /* Danger — red */
+  --danger-subtle: #FEF2F2;    /* red-50 */
+  --danger-muted: #FEE2E2;     /* red-100 */
+  --danger: #DC2626;           /* red-600 */
+  --danger-hover: #B91C1C;     /* red-700 */
+  --danger-text: #B91C1C;      /* red-700 */
+
+  /* Success — green */
+  --success-subtle: #F0FDF4;   /* green-50 */
+  --success-muted: #DCFCE7;    /* green-100 */
+  --success: #16A34A;          /* green-600 */
+  --success-hover: #15803D;    /* green-700 */
+  --success-text: #15803D;     /* green-700 */
+
+  /* Focus ring — always DEFAULT primary, 2px solid, 2px offset */
+  --ring-color: var(--primary);
+
+  /* -------------------------------------------------------------------- */
+  /* Type scale — size / weight / line-height (px)                        */
+  /* -------------------------------------------------------------------- */
+  --fs-page-title: 36px;
+  --fw-page-title: 700;
+  --lh-page-title: 44px;
+
+  --fs-section-title: 24px;
+  --fw-section-title: 600;
+  --lh-section-title: 32px;
+
+  --fs-card-title: 20px;
+  --fw-card-title: 600;
+  --lh-card-title: 28px;
+
+  --fs-heading: 18px;
+  --fw-heading: 500;
+  --lh-heading: 26px;
+
+  --fs-body: 16px;
+  --fw-body: 400;
+  --lh-body: 24px;
+
+  --fs-secondary: 14px;
+  --fw-secondary: 400;
+  --lh-secondary: 20px;
+
+  --fs-caption: 12px;
+  --fw-caption: 500;
+  --lh-caption: 16px;
+}
+
+/* ========================================================================== */
+/* Dark theme                                                                 */
+/* Mirrors the light-mode rule with the inverse direction: surface-1 is now   */
+/* the darkest extreme, surface-0 sits one step lighter than it, and 2→5      */
+/* still ramp toward "more elevated = lighter."                              */
+/* ========================================================================== */
+.dark {
+  --surface-0: #0B0F14; /* app background */
+  --surface-1: #070A0E; /* main content well — darkest point */
+  --surface-2: #1A2332; /* cards */
+  --surface-3: #243042; /* elevated cards */
+  --surface-4: #2E3B50; /* dropdowns / hover */
+  --surface-5: #394960; /* reserved / spare elevation step */
+
+  --text-strong: #F8FAFC;
+  --text: #E2E8F0;
+  --text-muted: #94A3B8;
+  --text-subtle: #64748B;
+  --text-disabled: var(--text-subtle);
+
+  --border-subtle: rgba(255, 255, 255, 0.05);
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.14);
+  --border-disabled: var(--border-subtle);
+
+  --surface-disabled: var(--surface-3);
+
+  /* Primary — blue (pulled from bottom of ramp for dark-surface contrast) */
+  --primary-subtle: #172554;   /* blue-950 */
+  --primary-muted: #1E3A8A;    /* blue-900 */
+  --primary: #60A5FA;          /* blue-400 */
+  --primary-hover: #93C5FD;    /* blue-300 */
+  --primary-text: #93C5FD;     /* blue-300 */
+
+  /* Secondary — teal */
+  --secondary-subtle: #042F2E; /* teal-950 */
+  --secondary-muted: #134E4A;  /* teal-900 */
+  --secondary: #2DD4BF;        /* teal-400 */
+  --secondary-hover: #5EEAD4;  /* teal-300 */
+  --secondary-text: #5EEAD4;   /* teal-300 */
+
+  /* Danger — red */
+  --danger-subtle: #450A0A;    /* red-950 */
+  --danger-muted: #7F1D1D;     /* red-900 */
+  --danger: #F87171;           /* red-400 */
+  --danger-hover: #FCA5A5;     /* red-300 */
+  --danger-text: #FCA5A5;      /* red-300 */
+
+  /* Success — green */
+  --success-subtle: #052E16;   /* green-950 */
+  --success-muted: #14532D;    /* green-900 */
+  --success: #4ADE80;          /* green-400 */
+  --success-hover: #86EFAC;    /* green-300 */
+  --success-text: #86EFAC;     /* green-300 */
+
+  --ring-color: var(--primary);
+}
+
+/* Base element styling — wires tokens to real elements for this sample page */
+html {
+  font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+}
+
+body {
+  background-color: var(--surface-0);
+  color: var(--text);
+  transition: background-color 200ms ease-out, color 200ms ease-out;
+}
