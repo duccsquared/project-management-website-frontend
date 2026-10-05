@@ -73,8 +73,8 @@ onMounted(() => {
 
 const fetchData = useErrorWrapper(async () => {
   await new Promise((resolve) => setTimeout(resolve, 1000));
-  tasks.value = (await useApi("GET", "/tasks", {"assignments$some.projectMember.user.id$equals": 1})).data;
-  projects.value = (await useApi("GET", "/projects", {"members$some.user.id$equals": 1})).data;
+  tasks.value = (await useApi("GET", "/tasks", {"assignments$some.projectMember.user.id$equals": sessionStorage.getItem("user").id})).data;
+  projects.value = (await useApi("GET", "/projects", {"members$some.user.id$equals": sessionStorage.getItem("user").id})).data;
   console.log(tasks.value);
   console.log(projects.value);
   console.log(await useApi("GET", "/users"))

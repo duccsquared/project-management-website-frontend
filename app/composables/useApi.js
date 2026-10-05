@@ -6,9 +6,11 @@ const API_BASE = import.meta.env.BACKEND_URL ?? "http://localhost:8042";
 
 export const login = async (email,password) => {
   const response = await axios.post(`${API_BASE}/auth/login`, {email:email,password:password});
+  console.log("RESP", response)
   const authToken = response.data?.access_token;
   if(authToken != null) {
     sessionStorage.setItem("authToken",authToken)
+    sessionStorage.setItem("user",response.data.user)
     return authToken;
   }
   else {
