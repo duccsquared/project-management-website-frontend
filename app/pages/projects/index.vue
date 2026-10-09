@@ -1,6 +1,6 @@
 <template>
     <div class="max-w-dashboard mx-auto">
-      <AppCard :level="1" class="mt-4 flex flex-row justify-between items-center">
+      <AppCard :level="1" class="mt-4 gap-4 flex flex-col md:flex-row md:justify-between md:items-center">
         <div class="flex flex-col items-start">
           <h1 class="text-page-title font-page-title text-text-strong">Projects</h1>
           <p class="text-body font-body text-text-muted mt-1">
