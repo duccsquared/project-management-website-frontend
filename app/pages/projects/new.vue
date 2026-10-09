@@ -1,21 +1,21 @@
 <template>
-    <div class="max-w-dashboard mx-auto">
-      <AppCard :level="1" class="mt-4 flex flex-row justify-between items-center">
-        <div class="flex flex-col items-start">
-          <h1 class="text-page-title font-page-title text-text-strong">Create new project</h1>
-          <p class="text-body font-body text-text-muted mt-1">
-            Setup a new project
-          </p>
-        </div>
-        <AppButton icon="lucide:undo" to="/projects">Return</AppButton>
-      </AppCard>
+  <div class="max-w-dashboard mx-auto">
+    <AppCard :level="1" class="mt-4 flex flex-row justify-between items-center">
+      <div class="flex flex-col items-start">
+        <h1 class="text-page-title font-page-title text-text-strong">Create new project</h1>
+        <p class="text-body font-body text-text-muted mt-1">
+          Setup a new project
+        </p>
+      </div>
+      <AppButton icon="lucide:undo" to="/projects">Return</AppButton>
+    </AppCard>
 
-      <AppCard :level="1" class="mt-4 flex flex-col gap-4">
-        <AppInput label="Name" v-model="project.name" required></AppInput>
-        <AppTextarea label="Description" v-model="project.description"></AppTextarea>
-        <AppButton @click="createProject" :loading="createLoading">Create Project</AppButton>
-      </AppCard>
-    </div>
+    <AppCard :level="1" class="mt-4 flex flex-col gap-4">
+      <AppInput label="Name" v-model="project.name" required></AppInput>
+      <AppTextarea label="Description" v-model="project.description"></AppTextarea>
+      <AppButton @click="createProject" :loading="createLoading">Create Project</AppButton>
+    </AppCard>
+  </div>
 </template>
 <script setup>
 import { onMounted } from 'vue';
@@ -43,7 +43,7 @@ const fetchData = useErrorWrapper(async () => {
 }, isLoading)
 
 const createProject = useErrorWrapper(async () => {
-  if(project.value.name == null || project.value.name == "") {
+  if (project.value.name == null || project.value.name == "") {
     showError("Name is required")
   }
 
