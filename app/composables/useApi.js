@@ -10,7 +10,7 @@ export const login = async (email,password) => {
   const authToken = response.data?.access_token;
   if(authToken != null) {
     sessionStorage.setItem("authToken",authToken)
-    sessionStorage.setItem("user",response.data.user)
+    sessionStorage.setItem("user",JSON.stringify(response.data.user))
     return authToken;
   }
   else {

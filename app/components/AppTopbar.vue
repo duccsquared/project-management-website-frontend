@@ -34,7 +34,7 @@
           class="flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-input hover:bg-surface-3 transition-colors duration-hover ease-out"
         >
           <div class="w-7 h-7 rounded-full bg-secondary flex items-center justify-center text-white text-caption font-caption">
-            MK
+            {{ userInitials }}
           </div>
           <Icon icon="lucide:chevron-down" class="w-icon-small h-icon-small text-text-muted"/>
         </button>
@@ -52,8 +52,8 @@
             class="absolute right-0 mt-2 w-56 rounded-card bg-surface-4 border border-border shadow-dropdown py-1 z-20"
           >
             <div class="px-3 py-2 border-b border-border-subtle">
-              <p class="text-secondary font-secondary text-text-strong">Maya Kessler</p>
-              <p class="text-caption font-caption text-text-muted">maya@loomline.app</p>
+              <p class="text-secondary font-secondary text-text-strong">{{ user.email }}</p>
+              <p class="text-caption font-caption text-text-muted">{{ user.name }}</p>
             </div>
             <button class="w-full text-left px-3 py-2 text-secondary font-secondary text-text hover:bg-surface-5 transition-colors duration-hover ease-out">
               Account settings
@@ -74,12 +74,23 @@
 import { Icon } from '@iconify/vue'
 import { useRouter } from 'vue-router';
 import { useSidebar } from '../composables/useSidebar';
+import { useErrorWrapper } from '~/composables/useErrorWrapper';
+import { useApi } from '~/composables/useApi';
 const { isDark, toggle } = useTheme()
 const { collapsed, toggleCollapsed } = useSidebar();
 const router = useRouter();
 
+const user = ref({});
 const dropdownOpen = ref(false)
 const dropdownRef = ref(null)
+
+const userInitials = computed(() => {
+  if (user.value.name) {
+    const names = user.value.name.split(' ')
+    return names.map(n => n[0]).join('').toUpperCase()
+  }
+  return ''
+})
 
 function handleClickOutside(e) {
   if (dropdownRef.value && !dropdownRef.value.contains(e.target)) {
@@ -94,4 +105,13 @@ const signOut = () => {
   sessionStorage.setItem("authToken",null)
   router.push("/login")
 }
+
+onMounted(() => {
+  fetchData();
+})
+
+const fetchData = useErrorWrapper(async () => {
+  user.value = JSON.parse(sessionStorage.getItem("user"));
+  console.log(sessionStorage)
+})
 </script>
