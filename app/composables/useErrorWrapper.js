@@ -1,14 +1,14 @@
 import useNotification from '~/composables/useNotification'
 
-export const useErrorWrapper = (func, loadingRef) => {
+export const useErrorWrapper = (func, loadingRef = null) => {
   const { showSuccess, showError } = useNotification();
 
-  const errorWrapper = async (func) => {
+  const errorWrapper = async (...args) => {
     try {
       if(loadingRef != null) {
         loadingRef.value = true;
       }
-      return await func();
+      return await func(...args);
     }
     catch(e) {
       console.error(e)
@@ -21,5 +21,5 @@ export const useErrorWrapper = (func, loadingRef) => {
     }
   }
 
-  return (loadingRef=null) => errorWrapper(func, loadingRef);
+  return errorWrapper
 }
