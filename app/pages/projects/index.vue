@@ -32,6 +32,7 @@ const { showSuccess, showError } = useNotification();
 
 const isLoading = ref(false);
 
+const user = ref({});
 const projects = ref([]);
 
 
@@ -40,7 +41,8 @@ onMounted(() => {
 })
 
 const fetchData = useErrorWrapper(async () => {
-  projects.value = (await useApi("GET", "/projects", {"members$some.user.id$equals": 1, include: "owner"})).data;
+  user.value = JSON.parse(sessionStorage.getItem("user"));
+  projects.value = (await useApi("GET", "/projects", {"members$some.user.id$equals": user.value.id, include: "owner"})).data;
   console.log(projects.value);
 }, isLoading)
 </script>
