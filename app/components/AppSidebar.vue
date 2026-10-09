@@ -127,6 +127,12 @@ const tabItems = reactive([
         link: "/"
     },
     {
+        id: "projects",
+        name: "Projects",
+        icon: "lucide:clipboard-list",
+        link: "/projects"
+    },
+    {
         id: "tasks",
         name: "Tasks",
         icon: "lucide:list-checks",
