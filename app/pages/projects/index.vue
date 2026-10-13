@@ -15,9 +15,27 @@
       </AppCard>
 
       <AppCard v-if="!isLoading" :level="1" class="mt-4 flex flex-col gap-4">
-        <AppCard v-for="project in projects" :level="2" :to="`/projects/${project.id}`" class="hover:bg-surface-3">
-            <h2 class="text-card-title font-card-title">{{ project.name }}</h2>
+        <AppCard v-for="project in projects" :key="project.id" :level="2" class="relative flex flex-row justify-between hover:bg-surface-3">
+          <div>
+            <h2 class="text-card-title font-card-title">
+              <NuxtLink
+                :to="`/projects/${project.id}`"
+                class="after:absolute after:inset-0 after:rounded-card focus-visible:outline-none focus-visible:after:ring-2 focus-visible:after:ring-primary"
+              >
+                {{ project.name }}
+              </NuxtLink>
+            </h2>
             <p class="text-body font-body text-text-muted mt-1">{{ project.description }}</p>
+          </div>
+
+          <AppButton
+            icon="lucide:trash"
+            variant="ghost"
+            aria-label="Delete project"
+            class="relative z-10 text-danger hover:text-danger-hover"
+            :loading="deletingId === project.id"
+            @click="deleteProject(project.id)"
+          />
         </AppCard>
       </AppCard>
     </div>
@@ -31,10 +49,10 @@ import { includes } from 'zod';
 const { showSuccess, showError } = useNotification();
 
 const isLoading = ref(false);
+const loadingDelete = ref(false);
 
 const user = ref({});
 const projects = ref([]);
-
 
 onMounted(() => {
   fetchData();
@@ -45,4 +63,10 @@ const fetchData = useErrorWrapper(async () => {
   projects.value = (await useApi("GET", "/projects", {"members$some.user.id$equals": user.value.id, include: "owner"})).data;
   console.log(projects.value);
 }, isLoading)
+
+const deleteProject = useErrorWrapper(async (id) => {
+  const response = await useApi("DELETE",`/projects/${id}`)
+  showSuccess("Project deleted!")
+  fetchData();
+}, loadingDelete)
 </script>
