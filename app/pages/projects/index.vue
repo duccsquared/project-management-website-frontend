@@ -33,7 +33,7 @@
             variant="ghost"
             aria-label="Delete project"
             class="relative z-10 text-danger hover:text-danger-hover"
-            :loading="deletingId === project.id"
+            :loading="loadingDelete"
             @click="deleteProject(project.id)"
           />
         </AppCard>
@@ -66,7 +66,7 @@ const fetchData = useErrorWrapper(async () => {
 
 const deleteProject = useErrorWrapper(async (id) => {
   const response = await useApi("DELETE",`/projects/${id}`)
+  projects.value = projects.value.filter((project) => project.id != response.data.id)
   showSuccess("Project deleted!")
-  fetchData();
 }, loadingDelete)
 </script>
