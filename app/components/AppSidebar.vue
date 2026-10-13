@@ -21,10 +21,16 @@
         <button
           @click="onParentSelect(item)"
           :title="collapsed ? item.name : undefined"
+          :aria-current="activeItem === item.id ? 'page' : undefined"
+          :aria-busy="isPending(item.id) ? 'true' : undefined"
           class="w-full flex items-center gap-3 px-3 py-2 rounded-input text-secondary font-secondary transition-colors duration-hover ease-out"
           :class="parentClass(item)"
         >
-          <Icon :icon="item.icon" class="w-icon-normal h-icon-normal shrink-0"></Icon>
+          <Icon
+            :icon="isPending(item.id) ? PENDING_ICON : item.icon"
+            class="w-icon-normal h-icon-normal shrink-0"
+            :class="isPending(item.id) ? 'motion-safe:animate-spin' : ''"
+          ></Icon>
           <span v-if="!collapsed" class="flex-1 text-left whitespace-nowrap">{{ item.name }}</span>
           <Icon
             v-if="!collapsed && item.subTabs?.length"
@@ -42,12 +48,16 @@
             v-for="sub in item.subTabs"
             :key="sub.id"
             @click="onSelect(sub)"
+            :aria-current="activeItem === sub.id ? 'page' : undefined"
+            :aria-busy="isPending(sub.id) ? 'true' : undefined"
             class="w-full flex items-center gap-3 px-2 py-1.5 rounded-input text-caption font-caption transition-colors duration-hover ease-out"
-            :class="activeItem === sub.id
-              ? 'bg-primary-subtle text-primary-text'
-              : 'text-text-muted hover:bg-surface-3 hover:text-text-strong'"
+            :class="subClass(sub)"
           >
-            <Icon :icon="sub.icon" class="w-icon-small h-icon-small shrink-0"></Icon>
+            <Icon
+              :icon="isPending(sub.id) ? PENDING_ICON : sub.icon"
+              class="w-icon-small h-icon-small shrink-0"
+              :class="isPending(sub.id) ? 'motion-safe:animate-spin' : ''"
+            ></Icon>
             <span class="flex-1 text-left whitespace-nowrap">{{ sub.name }}</span>
           </button>
         </div>
@@ -68,56 +78,20 @@
   </aside>
 </template>
 <script setup>
-import { Icon } from '@iconify/vue'
-import { useRouter } from 'vue-router';
+import { Icon, loadIcons } from '@iconify/vue'
+import { useRouter, useRoute } from 'vue-router';
 import { useSidebar } from '../composables/useSidebar';
 const router = useRouter();
+const route = useRoute();
+const nuxtApp = useNuxtApp();
 const { collapsed, toggleCollapsed } = useSidebar();
 
-const activeItem = ref('home');
+const PENDING_ICON = 'lucide:loader-circle';
+
 const openTabs = ref(new Set(['category']));
+// id of the item whose navigation has been requested but hasn't finished yet
+const pendingId = ref(null);
 const emit = defineEmits(['select'])
-
-const isOpen = (id) => openTabs.value.has(id);
-
-const toggleOpen = (item) => {
-  const next = new Set(openTabs.value);
-  if (next.has(item.id)) next.delete(item.id);
-  else next.add(item.id);
-  openTabs.value = next;
-};
-
-// Parent click: expand/collapse subtabs when present, otherwise navigate.
-const onParentSelect = (item) => {
-  if (item.subTabs?.length) {
-    if(collapsed.value) {
-      // if collapsed, uncollapse and open sidebar (if closed)
-      collapsed.value = false;
-      if(!(new Set(openTabs.value)).has(item.id)) {
-        toggleOpen(item);
-      }
-      
-    }
-    else {
-      toggleOpen(item);
-    }
-    return;
-  }
-  onSelect(item);
-};
-
-const onSelect = (tab) => {
-  emit('select', tab.id);
-  activeItem.value = tab.id;
-  router.push(tab.link);
-};
-
-const parentClass = (item) => {
-  const isActive = item.subTabs?.some((s) => s.id === activeItem.value) || activeItem.value === item.id;
-  return isActive
-    ? 'bg-primary-subtle text-primary-text'
-    : 'text-text-muted hover:bg-surface-3 hover:text-text-strong';
-};
 
 const tabItems = reactive([
     {
@@ -170,4 +144,118 @@ const tabItems = reactive([
         ]
     },
 ])
+
+/* ---------- Active item (derived from the route) ---------- */
+
+// Every item that actually navigates somewhere (leaf items + subtabs)
+const navigableItems = computed(() =>
+  tabItems.flatMap((item) => (item.subTabs?.length ? item.subTabs : [item])).filter((t) => t.link)
+);
+
+const matchesPath = (link, path) =>
+  link === '/' ? path === '/' : path === link || path.startsWith(link + '/');
+
+// The single best match wins: longest link first, and the earliest item wins ties.
+// This keeps "/" (Home) from lighting up for every page, and means items that
+// share a link can't all highlight at once.
+const activeItem = computed(() => {
+  const path = route.path.replace(/\/+$/, '') || '/';
+  let best = null;
+  for (const t of navigableItems.value) {
+    if (!matchesPath(t.link, path)) continue;
+    if (!best || t.link.length > best.link.length) best = t;
+  }
+  return best ? best.id : null;
+});
+
+/* ---------- Open/close subtabs ---------- */
+
+const isOpen = (id) => openTabs.value.has(id);
+
+const toggleOpen = (item) => {
+  const next = new Set(openTabs.value);
+  if (next.has(item.id)) next.delete(item.id);
+  else next.add(item.id);
+  openTabs.value = next;
+};
+
+// Make sure the parent of the active subtab is expanded (deep links, refresh, back/forward)
+watch(
+  activeItem,
+  (id) => {
+    const parent = tabItems.find((item) => item.subTabs?.some((s) => s.id === id));
+    if (parent && !openTabs.value.has(parent.id)) {
+      openTabs.value = new Set(openTabs.value).add(parent.id);
+    }
+  },
+  { immediate: true }
+);
+
+/* ---------- Pending navigation indicator ---------- */
+
+const isPending = (id) => pendingId.value === id;
+
+// Nuxt fires page:finish once the new page has resolved and rendered,
+// which is the moment the "loading" feedback should go away.
+const stopFinishHook = nuxtApp.hook('page:finish', () => {
+  pendingId.value = null;
+});
+onBeforeUnmount(stopFinishHook);
+
+// Make sure the spinner icon is already available when it's needed,
+// otherwise Iconify would fetch it on the first click, defeating the purpose.
+onMounted(() => loadIcons([PENDING_ICON]));
+
+/* ---------- Click handlers ---------- */
+
+// Parent click: expand/collapse subtabs when present, otherwise navigate.
+const onParentSelect = (item) => {
+  if (item.subTabs?.length) {
+    if(collapsed.value) {
+      // if collapsed, uncollapse and open sidebar (if closed)
+      collapsed.value = false;
+      if(!(new Set(openTabs.value)).has(item.id)) {
+        toggleOpen(item);
+      }
+      
+    }
+    else {
+      toggleOpen(item);
+    }
+    return;
+  }
+  onSelect(item);
+};
+
+const onSelect = async (tab) => {
+  emit('select', tab.id);
+  // Already here, or already on its way: nothing to do
+  if (!tab.link || activeItem.value === tab.id || pendingId.value === tab.id) return;
+
+  pendingId.value = tab.id;
+  try {
+    const failure = await router.push(tab.link);
+    // push() resolves with a failure (duplicated, cancelled, aborted) instead of throwing.
+    // Only clear if no newer click has taken over as the pending item.
+    if (failure && pendingId.value === tab.id) pendingId.value = null;
+  } catch (e) {
+    if (pendingId.value === tab.id) pendingId.value = null;
+    throw e;
+  }
+};
+
+/* ---------- Styling ---------- */
+
+const stateClass = (isActive, isPendingItem) => {
+  if (isActive) return 'bg-primary-subtle text-primary-text';
+  if (isPendingItem) return 'bg-surface-3 text-text-strong cursor-progress';
+  return 'text-text-muted hover:bg-surface-3 hover:text-text-strong';
+};
+
+const parentClass = (item) => {
+  const isActive = item.subTabs?.some((s) => s.id === activeItem.value) || activeItem.value === item.id;
+  return stateClass(isActive, isPending(item.id));
+};
+
+const subClass = (sub) => stateClass(activeItem.value === sub.id, isPending(sub.id));
 </script>
