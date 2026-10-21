@@ -1,0 +1,57 @@
+<template>
+  <div class="max-w-dashboard mx-auto">
+    <AppCard :level="1" class="mt-4 gap-4 flex flex-col md:flex-row md:justify-between md:items-center">
+      <div class="flex flex-col items-start">
+        <h1 class="text-page-title font-page-title text-text-strong">{{ project.name ?? '-' }}</h1>
+        <p class="text-body font-body text-text-muted mt-1">
+          Project summary and details details
+        </p>
+      </div>
+      <AppButton icon="lucide:undo" to="/projects">Return</AppButton>
+    </AppCard>
+
+    <AppCard v-if="isLoading" :level="1" class="mt-8 flex flex-col items-center">
+      <p class="text-caption font-caption">Loading Data...</p>
+    </AppCard>
+
+    <AppCard v-if="!isLoading" :level="1" class="mt-4 flex flex-col gap-4">
+      <AppTable :columns="columns" :rows="tasks"/>
+    </AppCard>
+  </div>
+</template>
+<script setup>
+import { onMounted } from 'vue';
+import { useErrorWrapper } from '~/composables/useErrorWrapper';
+import { useApi } from '~/composables/useApi';
+import useNotification from '~/composables/useNotification'
+import { includes } from 'zod';
+const { showSuccess, showError } = useNotification();
+const route = useRoute()
+
+const isLoading = ref(false);
+const loadingDelete = ref(false);
+
+const user = ref({});
+const project = ref({});
+const tasks = ref([])
+
+const columns = [
+  {key: "id", label: "ID"},
+  {key: "name", label: "Name"},
+  {key: "status", label: "Status"},
+  {key: "priority", label: "Priority"},
+  {key: "dueDate", label: "Due Date"}
+]
+
+onMounted(() => {
+  fetchData();
+})
+
+const fetchData = useErrorWrapper(async () => {
+  user.value = JSON.parse(sessionStorage.getItem("user"));
+  const projectId = route.params.id;
+  project.value = (await useApi("GET", `/projects/${projectId}`)).data;
+  tasks.value = (await useApi("GET", `/tasks`, {projectId: projectId}))?.data ?? [];
+  console.log(project.value);
+}, isLoading)
+</script>
