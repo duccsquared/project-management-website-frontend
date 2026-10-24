@@ -36,6 +36,20 @@
           </svg>
           New project
         </button>
+
+        <!-- Generic modal demos -->
+        <button
+          @click="confirmOpen = true"
+          class="px-4 py-2 rounded-input text-secondary font-secondary text-white bg-danger hover:bg-danger-hover transition-colors duration-hover ease-out"
+        >
+          Delete project
+        </button>
+        <button
+          @click="iconModalOpen = true"
+          class="px-4 py-2 rounded-input text-secondary font-secondary text-text border border-border hover:bg-surface-3 transition-colors duration-hover ease-out"
+        >
+          Icon modal
+        </button>
       </div>
     </div>
 
@@ -143,10 +157,42 @@
 
     <!-- Modal and Toast Stack -->
     <NewProjectModal :open="modalOpen" @close="modalOpen = false" @create="handleCreateProject" />
+
+    <AppModal
+      :open="confirmOpen"
+      title="Delete this project?"
+      @close="confirmOpen = false"
+    >
+      <template #subtitle>
+        This will permanently remove "Billing migration" and all of its tasks. This can't be undone.
+      </template>
+      <template #footer>
+        <AppButton variant="ghost" @click="confirmOpen = false">Cancel</AppButton>
+        <AppButton variant="danger" @click="handleDeleteProject">Delete project</AppButton>
+      </template>
+    </AppModal>
+
+    <AppModal
+      :open="iconModalOpen"
+      title="Server maintenance"
+      :dismissible="false"
+      @close="iconModalOpen = false"
+    >
+      <template #icon>
+        <Icon icon="lucide:server" class="w-icon-large h-icon-large" />
+      </template>
+      <template #subtitle>
+        Scheduled maintenance starts at 2:00 AM UTC. Expect ~15 minutes of downtime.
+      </template>
+      <template #footer>
+        <AppButton variant="ghost" @click="iconModalOpen = false">OK</AppButton>
+      </template>
+    </AppModal>
   </div>
 </template>
 <script setup>
 import useNotification from '~/composables/useNotification'
+import { Icon } from '@iconify/vue'
 const { showSuccess, showError } = useNotification();
 
 // definePageMeta({
@@ -154,6 +200,8 @@ const { showSuccess, showError } = useNotification();
 // })
 const activeNav = ref('projects')
 const modalOpen = ref(false)
+const confirmOpen = ref(false)
+const iconModalOpen = ref(false)
 
 const projects = ref([
   {
@@ -210,6 +258,11 @@ function handleCreateProject({ name, description }) {
 
 function simulateError() {
   showError('Sync failed', 'Could not reach the billing service. Retrying shortly.')
+}
+
+function handleDeleteProject() {
+  confirmOpen.value = false
+  showSuccess('Project deleted', '"Billing migration" was removed.')
 }
 
 const summary = computed(() => ({

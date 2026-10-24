@@ -29,4 +29,4 @@ FOCUS RING: ring-2 ring-offset already resolve to primary + 2px via config defau
 
 Example classes: text-heading font-heading, rounded-input, shadow-card, bg-surface-disabled, bg-primary-subtle, bg-secondary-700, text-text-disabled, border-border-strong, ring-danger 
 
-Note: this design spec is intended as a guideline. If a situation is encountered where the specs as stated would result in problems with UI design, ignore these spec and mention the issue encountered. 
+Note: this design spec is intended as guidelines, not as strict rules. If a situation is encountered where the specs as stated would result in problems with UI design, ignore these specs and mention the encountered issue. 

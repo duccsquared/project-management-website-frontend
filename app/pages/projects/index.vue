@@ -34,10 +34,25 @@
             aria-label="Delete project"
             class="relative z-10 text-danger hover:text-danger-hover"
             :loading="loadingDelete"
-            @click="deleteProject(project.id)"
+            @click="openDeletePopup(project)"
           />
         </AppCard>
       </AppCard>
+
+      <AppModal
+        :open="deletePopup"
+        title="Delete this project?"
+        @close="deletePopup = false"
+      >
+        <template #subtitle>
+          This will permanently remove {{selectedProject.name}} and all of its tasks. This can't be undone.
+        </template>
+        <template #footer>
+          <AppButton variant="ghost" @click="deletePopup = false">Cancel</AppButton>
+          <AppButton variant="danger" @click="deleteProject" :loading="loadingDelete">Delete project</AppButton>
+        </template>
+      </AppModal>
+
     </div>
 </template>
 <script setup>
@@ -54,6 +69,10 @@ const loadingDelete = ref(false);
 const user = ref({});
 const projects = ref([]);
 
+const selectedProject = ref(null);
+const deletePopup = ref(false);
+
+
 onMounted(() => {
   fetchData();
 })
@@ -64,9 +83,15 @@ const fetchData = useErrorWrapper(async () => {
   console.log(projects.value);
 }, isLoading)
 
-const deleteProject = useErrorWrapper(async (id) => {
-  const response = await useApi("DELETE",`/projects/${id}`)
+const openDeletePopup = (project) => {
+  selectedProject.value  = project;
+  deletePopup.value = true;
+}
+
+const deleteProject = useErrorWrapper(async () => {
+  const response = await useApi("DELETE",`/projects/${selectedProject.value.id}`)
   projects.value = projects.value.filter((project) => project.id != response.data.id)
   showSuccess("Project deleted!")
+  deletePopup.value = false;
 }, loadingDelete)
 </script>
