@@ -40,6 +40,7 @@ const columns = [
   {key: "name", label: "Name"},
   {key: "status", label: "Status"},
   {key: "priority", label: "Priority"},
+  {key: "assignedTo", label: "Assigned To"},
   {key: "dueDate", label: "Due Date"}
 ]
 
@@ -51,7 +52,10 @@ const fetchData = useErrorWrapper(async () => {
   user.value = JSON.parse(sessionStorage.getItem("user"));
   const projectId = route.params.id;
   project.value = (await useApi("GET", `/projects/${projectId}`)).data;
-  tasks.value = (await useApi("GET", `/tasks`, {projectId: projectId}))?.data ?? [];
+  tasks.value = (await useApi("GET", `/tasks`, {projectId: projectId, include: "assignments.projectMember.user"}))?.data ?? [];
+  tasks.value.forEach((task) => {
+    task.assignedTo = task.assignments.length == 0 ? '-' : (task.assignments.length > 1 ? `${task.assignments.length} members` : task.assignments[0].projectMember.user.name);
+  })
   console.log(project.value);
 }, isLoading)
 </script>
