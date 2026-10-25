@@ -15,8 +15,15 @@
     </AppCard>
 
     <AppCard v-if="!isLoading" :level="1" class="mt-4 flex flex-col gap-4">
-      <AppTable :columns="columns" :rows="tasks"/>
+      <AppTable :columns="columns" :rows="tasks">
+        <template #cell-actions="{ row }">
+          <AppButton icon="lucide:eye" variant="ghost" class="text-blue-500" @click="openTaskPopup(row)"/>
+          <AppButton icon="lucide:trash" variant="ghost" class="text-red-500" @click="openDeleteTaskPopup(row)"/>
+        </template>
+      </AppTable>
     </AppCard>
+
+    <TaskModal :open="taskPopup" :task="selectedtask" @close="taskPopup = false" @save="() => {}"/>
   </div>
 </template>
 <script setup>
@@ -35,13 +42,18 @@ const user = ref({});
 const project = ref({});
 const tasks = ref([])
 
+const selectedtask = ref(null);
+const taskPopup = ref(false);
+
+
 const columns = [
   {key: "id", label: "ID"},
   {key: "name", label: "Name"},
   {key: "status", label: "Status"},
   {key: "priority", label: "Priority"},
   {key: "assignedTo", label: "Assigned To"},
-  {key: "dueDate", label: "Due Date"}
+  {key: "dueDate", label: "Due Date"},
+  {key: "actions", label: "Actions"}
 ]
 
 onMounted(() => {
@@ -58,4 +70,13 @@ const fetchData = useErrorWrapper(async () => {
   })
   console.log(project.value);
 }, isLoading)
+
+const openTaskPopup = (task) => {
+  selectedtask.value = task;
+  taskPopup.value = true;
+}
+
+const openDeleteTaskPopup = (task) => {
+  showError("Feature Not Implemented Yet")
+}
 </script>
