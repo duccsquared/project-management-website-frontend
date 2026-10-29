@@ -23,7 +23,7 @@
       </AppTable>
     </AppCard>
 
-    <TaskModal :open="taskPopup" :task="selectedtask" @close="taskPopup = false" @save="() => {}"/>
+    <TaskModal :open="taskPopup" :task="selectedtask" @close="taskPopup = false" @save="fetchData"/>
   </div>
 </template>
 <script setup>
