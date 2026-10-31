@@ -72,7 +72,8 @@ const saveTask = useErrorWrapper(async () => {
   if(editedTask.value==null) {return}
 
   editedTask.value.dueDate = formatDate(editedTask.value.dueDate, 'iso')
-
+  editedTask.value.projectId = undefined;
+  editedTask.value.assignedTo = undefined;
   if(editedTask.value.id) {
     // update
     await useApi('PUT', `/tasks/${editedTask.value.id}`, null, editedTask.value)
